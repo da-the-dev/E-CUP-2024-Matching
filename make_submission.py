@@ -9,10 +9,10 @@ def load_test_data():
     text_and_bert_path = 'data/text_and_bert.parquet'
     val_path = 'data/val.parquet'
 
-    attributes = pd.read_parquet(attributes_path)
-    resnet = pd.read_parquet(resnet_path)
-    text_and_bert = pd.read_parquet(text_and_bert_path)
-    test = pd.read_parquet(val_path)
+    attributes = pd.read_parquet(attributes_path, engine='pyarrow')
+    resnet = pd.read_parquet(resnet_path, engine='pyarrow')
+    text_and_bert = pd.read_parquet(text_and_bert_path, engine='pyarrow')
+    test = pd.read_parquet(val_path, engine='pyarrow')
     
     return attributes, resnet, text_and_bert, test
 
