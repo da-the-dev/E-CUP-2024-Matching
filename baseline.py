@@ -8,10 +8,10 @@ import joblib
 import json
 
 def load_data():
-    attributes_path = '/path/to/attributes.parquet'
-    resnet_path = '/path/to/resnet.parquet'
-    text_and_bert_path = '/path/to/text_and_bert.parquet'
-    train_path = '/path/to/train.parquet'
+    attributes_path = '/data/train/attributes.parquet'
+    resnet_path = '/data/train/resnet.parquet'
+    text_and_bert_path = '/data/train/text_and_bert.parquet'
+    train_path = '/data/train/train.parquet'
 
     attributes = pd.read_parquet(attributes_path)
     resnet = pd.read_parquet(resnet_path)
@@ -76,7 +76,7 @@ def prepare_data(train_data, tfidf_vectorizer):
 def train_model(X_train, y_train):
     model = LogisticRegression(max_iter=2000)
     model.fit(X_train, y_train)
-    joblib.dump(model, 'baseline_with_text.pkl')
+    joblib.dump(model, 'baseline.pkl')
     return model
 
 def evaluate_model(model, X_val, y_val):
@@ -99,7 +99,7 @@ def main():
 
     model = train_model(X_train, y_train)
     evaluate_model(model, X_val, y_val)
-    joblib.dump(tfidf_vectorizer, 'baseline.pkl')
+    joblib.dump(tfidf_vectorizer, 'vectorizer.pkl')
 
 if __name__ == "__main__":
     main()

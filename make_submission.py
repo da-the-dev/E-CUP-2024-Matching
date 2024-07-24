@@ -4,10 +4,10 @@ import joblib
 import json
 
 def load_test_data():
-    attributes_path = 'data/attributes.parquet'
-    resnet_path = 'data/resnet.parquet'
-    text_and_bert_path = 'data/text_and_bert.parquet'
-    val_path = 'data/val.parquet'
+    attributes_path = 'data/test/attributes.parquet'
+    resnet_path = 'data/test/resnet.parquet'
+    text_and_bert_path = 'data/test/text_and_bert.parquet'
+    val_path = 'data/test/test.parquet'
 
     attributes = pd.read_parquet(attributes_path, engine='pyarrow')
     resnet = pd.read_parquet(resnet_path, engine='pyarrow')
@@ -86,7 +86,7 @@ def main():
         'target': predictions
     })
     
-    submission.to_csv('submission.csv', index=False)
+    submission.to_csv('./data/submission.csv', index=False)
 
 if __name__ == "__main__":
     main()
