@@ -8,10 +8,10 @@ import joblib
 import json
 
 def load_data():
-    attributes_path = '/data/train/attributes.parquet'
-    resnet_path = '/data/train/resnet.parquet'
-    text_and_bert_path = '/data/train/text_and_bert.parquet'
-    train_path = '/data/train/train.parquet'
+    attributes_path = './data/train/attributes.parquet'
+    resnet_path = './data/train/resnet.parquet'
+    text_and_bert_path = './data/train/text_and_bert.parquet'
+    train_path = './data/train/train.parquet'
 
     attributes = pd.read_parquet(attributes_path)
     resnet = pd.read_parquet(resnet_path)

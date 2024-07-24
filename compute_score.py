@@ -18,8 +18,8 @@ def compare_csv_files(csv_file1, csv_file2, max_fpr=0.25):
     return pauc
 
 if __name__ == "__main__":
-    CSV_FILE_1 = 'data/submission.csv'
-    CSV_FILE_2 = 'data/private_info/test.csv'
+    CSV_FILE_1 = './data/submission.csv'
+    CSV_FILE_2 = './data/private_info/test.csv'
 
     pauc = compare_csv_files(CSV_FILE_1, CSV_FILE_2)
     print(f'PAUC: {pauc:.4f}')

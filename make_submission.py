@@ -4,10 +4,10 @@ import joblib
 import json
 
 def load_test_data():
-    attributes_path = 'data/test/attributes_test.parquet'
-    resnet_path = 'data/test/resnet_test.parquet'
-    text_and_bert_path = 'data/test/text_and_bert_test.parquet'
-    val_path = 'data/test/test.parquet'
+    attributes_path = './data/test/attributes_test.parquet'
+    resnet_path = './data/test/resnet_test.parquet'
+    text_and_bert_path = './data/test/text_and_bert_test.parquet'
+    val_path = './data/test/test.parquet'
 
     attributes = pd.read_parquet(attributes_path, engine='pyarrow')
     resnet = pd.read_parquet(resnet_path, engine='pyarrow')

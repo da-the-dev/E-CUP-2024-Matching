@@ -3,6 +3,8 @@ WORKDIR /app
 
 COPY . /app
 
+RUN mkdir -p /app/data
+
 VOLUME /app/data
 RUN pip3 install -r requirements.txt
 
