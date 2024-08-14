@@ -1,12 +1,13 @@
-FROM python:3.10
+FROM python:3.10-slim
 WORKDIR /app
+VOLUME /app/data
+SHELL [ "/bin/bash", "-c" ]
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["python3","/app/make_submission.py"]
 
 COPY . /app
 
-RUN mkdir -p /app/data
-
-VOLUME /app/data
-RUN pip3 install -r requirements.txt
-
-RUN chmod +x /app/baseline.py
-RUN chmod +x /app/make_submission.py
+RUN python3 -m venv venv && \
+    source venv/bin/activate && \
+    pip install --no-cache-dir -r requirements.txt && \
+    chmod +x /app/entrypoint.sh /app/baseline.py /app/make_submission.py
