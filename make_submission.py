@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import joblib
-from baseline import process_text_and_bert, merge_data, combine_embeddings, load_data  # Импортируем нужные функции
+from baseline import process_text_and_bert, merge_data
 
 def load_test_data():
     attributes_path = './data/test/attributes_test.parquet'
