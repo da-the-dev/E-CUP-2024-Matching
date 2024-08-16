@@ -20,13 +20,20 @@ def load_data():
 
     return attributes, resnet, text_and_bert, train
 
+def extract_text_from_row(row):
+
+    category_text = ' '.join(
+        [' '.join(map(str, v)) if isinstance(v, list) else str(v) for v in list(row['categories'].values())]
+    )
+    attributes_text = ' '.join(
+        [' '.join(map(str, v)) if isinstance(v, list) else str(v) for v in list(row['characteristic_attributes_mapping'].values())]
+    )
+    return f"{category_text} {attributes_text}"
+
 def process_text_and_bert(df):
     df['categories'] = df['categories'].apply(json.loads)
     df['characteristic_attributes_mapping'] = df['characteristic_attributes_mapping'].apply(json.loads)
-    df['combined_text'] = df.apply(lambda row: ' '.join(
-        [' '.join(map(str, v)) if isinstance(v, list) else str(v) for v in list(row['categories'].values())] + 
-        [' '.join(map(str, v)) if isinstance(v, list) else str(v) for v in list(row['characteristic_attributes_mapping'].values())]
-    ), axis=1)
+    df['combined_text'] = df.apply(extract_text_from_row, axis=1)
     return df
 
 def merge_data(train, resnet, text_and_bert):
@@ -59,11 +66,9 @@ def prepare_data(train_data, tfidf_vectorizer):
     text_data = train_data['text_1'] + ' ' + train_data['text_2']
     text_embeddings = tfidf_vectorizer.fit_transform(text_data).toarray()
 
-    split_index = text_embeddings.shape[1] // 2
-    train_data['text_embedding_1'] = list(text_embeddings[:, :split_index])
-    train_data['text_embedding_2'] = list(text_embeddings[:, split_index:])
-
-    train_data['combined_embeddings'] = train_data.apply(combine_embeddings, axis=1)
+    train_data['combined_embeddings'] = train_data.apply(lambda row: np.concatenate([
+        row['pic_embeddings_1'][0], row['pic_embeddings_2'][0], text_embeddings[row.name]
+    ]), axis=1)
 
     X = np.vstack(train_data['combined_embeddings'].values)
     y = train_data['target']
@@ -71,7 +76,6 @@ def prepare_data(train_data, tfidf_vectorizer):
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=23)
 
     return X_train, X_val, y_train, y_val, tfidf_vectorizer
-
 
 def train_model(X_train, y_train):
     model = LogisticRegression(max_iter=2000)
@@ -86,7 +90,6 @@ def evaluate_model(model, X_val, y_val):
     precision, recall, _ = precision_recall_curve(y_val, y_pred_prob)
     prauc = auc(recall, precision)
     print(f'PRAUC: {prauc}')
-
 
 def main():
     attributes, resnet, text_and_bert, train = load_data()
