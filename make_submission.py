@@ -9,12 +9,6 @@ def load_test_data():
     text_and_bert_path = './data/test/text_and_bert_test.parquet'
     val_path = './data/test/test.parquet'
 
-    attributes_path = '/Users/nikitakamenev/Documents/repo/hack_ozon/e_cup/data/test_data_task_01/attributes_test.parquet'
-    resnet_path = '/Users/nikitakamenev/Documents/repo/hack_ozon/e_cup/data/test_data_task_01/resnet_test.parquet'
-    text_and_bert_path = '/Users/nikitakamenev/Documents/repo/hack_ozon/e_cup/data/test_data_task_01/text_and_bert_test.parquet'
-    val_path = '/Users/nikitakamenev/Documents/repo/hack_ozon/e_cup/data/test_data_task_01/test.parquet'
-
-
     attributes = pd.read_parquet(attributes_path, engine='pyarrow')
     resnet = pd.read_parquet(resnet_path, engine='pyarrow')
     text_and_bert = pd.read_parquet(text_and_bert_path, engine='pyarrow')
