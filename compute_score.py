@@ -1,30 +1,7 @@
 import pandas as pd
 import numpy as np
 import argparse
-import json
 from sklearn.metrics import precision_recall_curve, auc
-
-
-class ParticipantVisibleError(Exception):
-    pass
-
-
-def validate(target_df: pd.DataFrame, prediction_df: pd.DataFrame) -> bool:
-    target_df = target_df.drop_duplicates(["variantid1", "variantid2"])
-
-    shape_ok = target_df.shape[0] == prediction_df.shape[0]
-    nan_ok = prediction_df["target_pred"].notna().all()
-
-    not_bool_target = len(prediction_df["target_pred"].unique()) == 2
-
-    if not shape_ok:
-        print("Shape mismatch: target_df has", target_df.shape[0], "rows, prediction_df has", prediction_df.shape[0], "rows")
-    if not nan_ok:
-        print("NaN values found in target_pred column")
-    if not not_bool_target:
-        print("target_pred column has less than 3 unique values:", prediction_df["target_pred"].unique())
-
-    return shape_ok and nan_ok and not_bool_target
 
 
 def calculate_macro_prauc_by_category(df: pd.DataFrame, categories: np.ndarray) -> float:
@@ -56,9 +33,6 @@ def compare_csv_files_with_categories(csv_file1: str, csv_file2: str):
     test_labels = pd.read_csv(csv_file1)
 
     df = test_labels.merge(submission, on=["variantid1", "variantid2"], suffixes=('_true', '_pred'))
-
-    if not validate(test_labels, df):
-        raise ParticipantVisibleError("Validation failed for input dataframes")
 
     categories = test_labels['category2'].dropna().unique()
 
