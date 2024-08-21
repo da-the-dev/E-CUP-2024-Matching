@@ -40,8 +40,8 @@ docker run -it --network none --shm-size 2G --name matching_object -v ./data:/ap
 - **vectorizer.pkl**: файл, содержащий векторизатор.
 
 ```shell
-docker cp template_5699:/app/baseline.pkl ./
-docker cp template_5699:/app/vectorizer.pkl ./
+docker cp matching_object:/app/baseline.pkl ./
+docker cp matching_object:/app/vectorizer.pkl ./
 ```
 
 ##### сделайте git push с весами
