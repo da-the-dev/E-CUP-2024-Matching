@@ -1,0 +1,5 @@
+attributes_path: 'data/train/attributes.parquet' # (2_252_569, 3)
+resnet_path: 'data/train/resnet.parquet' # (2_252_569, 3)
+text_and_bert_path: 'data/train/text_and_bert.parquet'  # (2_252_569, 4)
+train_path: 'data/train/train.parquet' # (1_168_516, 3)
+merged_df_path: 'data/train/merged_data.parquet'
