@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import joblib
-from src.baseline import process_text_and_bert, merge_data
+from baseline import process_text_and_bert, merge_data
 
 def load_test_data():
     attributes_path = './data/test/attributes_test.parquet'
@@ -34,11 +34,11 @@ def main():
 
     test_data = merge_data(test, resnet, text_and_bert)
 
-    tfidf_vectorizer = joblib.load('../vectorizer.pkl')
+    tfidf_vectorizer = joblib.load('vectorizer.pkl')
 
     X_test = prepare_test_data(test_data, tfidf_vectorizer)
     
-    model = joblib.load('../baseline.pkl')
+    model = joblib.load('baseline.pkl')
     
     predictions_prob = model.predict_proba(X_test)[:, 1]
     predictions = (predictions_prob >= 0.5).astype(int)
