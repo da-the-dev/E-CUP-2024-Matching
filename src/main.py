@@ -3,7 +3,7 @@ import pandas as pd
 import yaml
 
 
-def read_parquet_in_batches(file_path: str, batch_size=65536, load_percentage=100) -> pd.DataFrame:
+def read_parquet_in_batches(file_path: str, batch_size=65536, load_percentage=100, return_batch=False) -> pd.DataFrame:
     """
     Reads a Parquet file in batches and processes each batch.
 
@@ -29,6 +29,9 @@ def read_parquet_in_batches(file_path: str, batch_size=65536, load_percentage=10
         processed_rows += len(batch_df)
         progress = (processed_rows / rows_to_load) * 100
         print(f'Progress: {progress:.2f}%')
+        
+        if return_batch:
+            yield batch_df
 
         batches.append(batch_df)
 
