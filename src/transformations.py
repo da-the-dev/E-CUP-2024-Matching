@@ -1,4 +1,4 @@
-__all__ = ["categories_transformer", "attr_transformer      "]
+__all__ = ["categories_transformer", "attr_transformer"]
 
 import json
 from sklearn.base import BaseEstimator, TransformerMixin
