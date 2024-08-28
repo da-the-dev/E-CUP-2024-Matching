@@ -3,7 +3,7 @@ import pandas as pd
 import yaml
 
 
-def read_parquet_in_batches(file_path: str, batch_size=65536, load_percentage=100, return_batch=False) -> pd.DataFrame:
+def read_parquet_in_batches(file_path: str, batch_size=65536, load_percentage=100) -> pd.DataFrame:
     """
     Reads a Parquet file in batches and processes each batch.
 
