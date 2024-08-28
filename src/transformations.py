@@ -22,9 +22,8 @@ class categories_transformer(BaseEstimator, TransformerMixin):
 
 
 class attr_transformer(BaseEstimator, TransformerMixin):
-    def init(self, feature: str):
-        super().init()
-        self.feature = feature
+    def __init__(self):
+        super().__init__()
 
     def transform(self, X):
         def attr_t(x):
@@ -46,3 +45,4 @@ class attr_transformer(BaseEstimator, TransformerMixin):
         ].transform(attr_t)
 
         return X
+
