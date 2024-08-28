@@ -1,6 +1,7 @@
 __all__ = ["categories_transformer", "attr_transformer"]
 
 import json
+import re
 from sklearn.decomposition import PCA
 import torch
 import random
@@ -38,12 +39,14 @@ class attr_transformer(BaseEstimator, TransformerMixin):
             row_dct: dict = json.loads(x)
 
             items = list(row_dct.items())
-            items.sort()
+            items.sort()                
             for key, val in items:
-                result_str += key + ":"
-                val_str = ", ".join(val)
+                result_str += key + " "
+                val_str = " ".join(val)
                 result_str += val_str
-                result_str += ";"
+                result_str += " "
+            result_str = re.sub(r'[^A-zА-я\s\d][\\\^]?', '', result_str)
+            result_str = re.sub(r'\s{2,}', ' ', result_str)
             return result_str
 
         X["characteristic_attributes_mapping"] = X[
