@@ -30,9 +30,6 @@ def read_parquet_in_batches(file_path: str, batch_size=65536, load_percentage=10
         progress = (processed_rows / rows_to_load) * 100
         print(f'Progress: {progress:.2f}%')
         
-        if return_batch:
-            yield batch_df
-
         batches.append(batch_df)
 
         if processed_rows >= rows_to_load:
