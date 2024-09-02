@@ -10,10 +10,10 @@ import torch.nn as nn
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
-
 class categories_transformer(BaseEstimator, TransformerMixin):
-    def __init__(self):
+    def __init__(self, feature):
         super().__init__()
+        self.feature = feature
 
     def transform(self, X):
         def unjson(x):
@@ -23,14 +23,15 @@ class categories_transformer(BaseEstimator, TransformerMixin):
 
             return " ".join(categories)
 
-        X["categories"] = X["categories"].transform(unjson)
+        X[self.feature] = X[self.feature].transform(unjson)
 
         return X
 
 
 class attr_transformer(BaseEstimator, TransformerMixin):
-    def __init__(self):
+    def __init__(self, feature):
         super().__init__()
+        self.feature = feature
 
     def transform(self, X):
         def attr_t(x):
@@ -39,19 +40,17 @@ class attr_transformer(BaseEstimator, TransformerMixin):
             row_dct: dict = json.loads(x)
 
             items = list(row_dct.items())
-            items.sort()                
+            items.sort()
             for key, val in items:
                 result_str += key + " "
                 val_str = " ".join(val)
                 result_str += val_str
                 result_str += " "
-            result_str = re.sub(r'[^A-zА-я\s\d][\\\^]?', '', result_str)
-            result_str = re.sub(r'\s{2,}', ' ', result_str)
+            result_str = re.sub(r"[^A-zА-я\s\d][\\\^]?", "", result_str)
+            result_str = re.sub(r"\s{2,}", " ", result_str)
             return result_str
 
-        X["characteristic_attributes_mapping"] = X[
-            "characteristic_attributes_mapping"
-        ].transform(attr_t)
+        X[self.feature] = X[self.feature].transform(attr_t)
 
         return X
 
@@ -77,7 +76,7 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
             torch.backends.cudnn.deterministic = True
 
         set_seed(42)
-        
+
         # Apply the encoding function to the specified feature
         X[self.feature] = list(self.model.encode(X[self.feature]))
 
