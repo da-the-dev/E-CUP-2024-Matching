@@ -2,6 +2,7 @@ __all__ = ["categories_transformer", "attr_transformer"]
 
 import json
 import re
+from typing_extensions import deprecated
 from sklearn.decomposition import PCA
 import torch
 import random
@@ -15,17 +16,19 @@ class categories_transformer(BaseEstimator, TransformerMixin):
         super().__init__()
         self.feature = feature
 
+    def __unjson(x):
+        categories = set(json.loads(x).values())
+        if "EPG" in categories:
+            categories.remove("EPG")
+
+        return " ".join(categories)
+
     def transform(self, X):
-        def unjson(x):
-            categories = set(json.loads(x).values())
-            if "EPG" in categories:
-                categories.remove("EPG")
+        X_copy = X.copy()
 
-            return " ".join(categories)
+        X_copy[self.feature] = X[self.feature].transform(self.__unjson)
 
-        X[self.feature] = X[self.feature].transform(unjson)
-
-        return X
+        return X_copy
 
 
 class attr_transformer(BaseEstimator, TransformerMixin):
@@ -33,28 +36,30 @@ class attr_transformer(BaseEstimator, TransformerMixin):
         super().__init__()
         self.feature = feature
 
+    def __attr_t(x):
+        result_str = ""
+
+        row_dct: dict = json.loads(x)
+
+        items = list(row_dct.items())
+        items.sort()
+        for key, val in items:
+            result_str += key + " "
+            val_str = " ".join(val)
+            result_str += val_str
+            result_str += " "
+        result_str = re.sub(r"[^A-zА-я\s\d][\\\^]?", "", result_str)
+        result_str = re.sub(r"\s{2,}", " ", result_str)
+        return result_str
+
     def transform(self, X):
-        def attr_t(x):
-            result_str = ""
+        X_copy = X.copy()
 
-            row_dct: dict = json.loads(x)
+        X_copy[self.feature] = X[self.feature].transform(self.__attr_t)
 
-            items = list(row_dct.items())
-            items.sort()
-            for key, val in items:
-                result_str += key + " "
-                val_str = " ".join(val)
-                result_str += val_str
-                result_str += " "
-            result_str = re.sub(r"[^A-zА-я\s\d][\\\^]?", "", result_str)
-            result_str = re.sub(r"\s{2,}", " ", result_str)
-            return result_str
+        return X_copy
 
-        X[self.feature] = X[self.feature].transform(attr_t)
-
-        return X
-
-
+@deprecated("New transformer is faster")
 class old_bert_64_transformer(BaseEstimator, TransformerMixin):
     def __init__(self, model, tokenizer, feature: str):
         super().__init__()
@@ -81,14 +86,18 @@ class old_bert_64_transformer(BaseEstimator, TransformerMixin):
 
         # Function to encode and collect embeddings
         def encode_string(string):
-            tokens = self.tokenizer.encode_plus(string, return_tensors="pt", max_length=1024, truncation=True).to(self.device)
+            tokens = self.tokenizer.encode_plus(
+                string, return_tensors="pt", max_length=1024, truncation=True
+            ).to(self.device)
             with torch.no_grad():
                 output = self.model(**tokens)
 
             attention_mask = tokens["attention_mask"].squeeze()
             token_embeddings = output.last_hidden_state.squeeze()
             token_embeddings = token_embeddings[attention_mask == 1]
-            pooled_embedding = torch.mean(token_embeddings, dim=0).detach().cpu().numpy()
+            pooled_embedding = (
+                torch.mean(token_embeddings, dim=0).detach().cpu().numpy()
+            )
 
             embeddings.append(pooled_embedding)
             return pooled_embedding
@@ -106,7 +115,6 @@ class old_bert_64_transformer(BaseEstimator, TransformerMixin):
         X[self.feature] = list(reduced_embeddings)
 
         return X
-    
 
 
 class bert_64_transformer(BaseEstimator, TransformerMixin):
@@ -119,8 +127,14 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
         self.batch_size = batch_size
 
         # Определяем устройство: MPS (GPU на Mac) или CUDA (NVIDIA GPU)
-        self.device = torch.device("mps") if torch.backends.mps.is_available() else (
-            torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        self.device = (
+            torch.device("mps")
+            if torch.backends.mps.is_available()
+            else (
+                torch.device("cuda")
+                if torch.cuda.is_available()
+                else torch.device("cpu")
+            )
         )
         self.model.to(self.device)  # Перемещаем модель на GPU
 
@@ -139,7 +153,7 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
             return_tensors="pt",
             padding=True,
             truncation=True,
-            max_length=512  # Уменьшение max_length для снижения потребления памяти
+            max_length=512,  # Уменьшение max_length для снижения потребления памяти
         ).to(self.device)
 
         # Получение эмбеддингов с использованием модели
@@ -154,20 +168,20 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
 
         return pooled_embeddings
 
-
     def transform(self, X):
+        X_copy = X.copy()
         self.set_seed(42)
 
         all_texts = X[self.feature].tolist()
         all_embeddings = []
 
         for i in range(0, len(all_texts), self.batch_size):
-            batch_texts = all_texts[i:i+self.batch_size]
+            batch_texts = all_texts[i : i + self.batch_size]
             batch_embeddings = self.encode_batch(batch_texts)
             all_embeddings.append(batch_embeddings.cpu().numpy())
 
         all_embeddings = np.concatenate(all_embeddings, axis=0)
         reduced_embeddings = self.pca.fit_transform(all_embeddings)
 
-        X[self.feature] = list(reduced_embeddings)
-        return X
+        X_copy[self.feature] = list(reduced_embeddings)
+        return X_copy
