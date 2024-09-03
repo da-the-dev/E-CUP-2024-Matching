@@ -55,7 +55,7 @@ class attr_transformer(BaseEstimator, TransformerMixin):
         return X
 
 
-class bert_64_transformer(BaseEstimator, TransformerMixin):
+class old_bert_64_transformer(BaseEstimator, TransformerMixin):
     def __init__(self, model, tokenizer, feature: str):
         super().__init__()
         self.tokenizer = tokenizer
@@ -109,7 +109,7 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
     
 
 
-class bert_64_transformer2(BaseEstimator, TransformerMixin):
+class bert_64_transformer(BaseEstimator, TransformerMixin):
     def __init__(self, model, tokenizer, feature: str, batch_size: int = 32):
         super().__init__()
         self.tokenizer = tokenizer
@@ -154,24 +154,6 @@ class bert_64_transformer2(BaseEstimator, TransformerMixin):
 
         return pooled_embeddings
 
-    def fit_transform(self, X):
-        self.set_seed(42)
-
-        all_texts = X[self.feature].tolist()
-        all_embeddings = []
-
-        # Обработка данных батчами
-        for i in range(0, len(all_texts), self.batch_size):
-            batch_texts = all_texts[i:i+self.batch_size]
-            batch_embeddings = self.encode_batch(batch_texts)
-            all_embeddings.append(batch_embeddings.cpu().numpy())
-
-        # Конкатенация всех батчей в один массив
-        all_embeddings = np.concatenate(all_embeddings, axis=0)
-        reduced_embeddings = self.pca.fit_transform(all_embeddings)
-
-        X[self.feature] = list(reduced_embeddings)
-        return X
 
     def transform(self, X):
         self.set_seed(42)
@@ -185,7 +167,7 @@ class bert_64_transformer2(BaseEstimator, TransformerMixin):
             all_embeddings.append(batch_embeddings.cpu().numpy())
 
         all_embeddings = np.concatenate(all_embeddings, axis=0)
-        reduced_embeddings = self.pca.transform(all_embeddings)
+        reduced_embeddings = self.pca.fit_transform(all_embeddings)
 
         X[self.feature] = list(reduced_embeddings)
         return X
