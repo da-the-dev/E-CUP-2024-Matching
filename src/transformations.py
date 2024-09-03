@@ -16,7 +16,7 @@ class categories_transformer(BaseEstimator, TransformerMixin):
         super().__init__()
         self.feature = feature
 
-    def __unjson(x):
+    def __unjson(self, x):
         categories = set(json.loads(x).values())
         if "EPG" in categories:
             categories.remove("EPG")
@@ -36,7 +36,7 @@ class attr_transformer(BaseEstimator, TransformerMixin):
         super().__init__()
         self.feature = feature
 
-    def __attr_t(x):
+    def __attr_t(self,  x):
         result_str = ""
 
         row_dct: dict = json.loads(x)
@@ -138,7 +138,7 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
         )
         self.model.to(self.device)  # Перемещаем модель на GPU
 
-    def set_seed(self, seed):
+    def __set_seed(self, seed):
         torch.manual_seed(seed)
         if torch.cuda.is_available() or torch.backends.mps.is_available():
             torch.cuda.manual_seed_all(seed)
@@ -146,7 +146,7 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
         random.seed(seed)
         torch.backends.cudnn.deterministic = True
 
-    def encode_batch(self, texts):
+    def __encode_batch(self, texts):
         # Токенизация батча текстов
         tokens = self.tokenizer(
             texts,
@@ -170,14 +170,14 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_copy = X.copy()
-        self.set_seed(42)
+        self.__set_seed(42)
 
         all_texts = X[self.feature].tolist()
         all_embeddings = []
 
         for i in range(0, len(all_texts), self.batch_size):
             batch_texts = all_texts[i : i + self.batch_size]
-            batch_embeddings = self.encode_batch(batch_texts)
+            batch_embeddings = self.__encode_batch(batch_texts)
             all_embeddings.append(batch_embeddings.cpu().numpy())
 
         all_embeddings = np.concatenate(all_embeddings, axis=0)
