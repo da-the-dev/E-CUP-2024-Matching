@@ -27,6 +27,7 @@ def make_transformations_1(df):
 
     tf.bert_64_transformer2(model, tokenizer, 'categories').fit_transform(new_df)
     tf.bert_64_transformer(model, tokenizer, "characteristic_attributes_mapping").transform(new_df)
+    new = new.drop(columns=['pic_embeddings_resnet_v1', 'name', 'description'])
     return new_df
 
 
