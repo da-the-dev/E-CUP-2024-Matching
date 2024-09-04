@@ -8,3 +8,4 @@ tqdm==4.66.5
 polars==1.6.0
 PyYAML==6.0.2
 typing-extensions==4.12.2
+matplotlib==3.9.2
