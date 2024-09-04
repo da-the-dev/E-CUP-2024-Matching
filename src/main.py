@@ -1,41 +1,45 @@
-import pyarrow.parquet as pq
 import pandas as pd
 import yaml
+import polars as pl
 
-
-def read_parquet_in_batches(file_path: str, batch_size=65536, load_percentage=100) -> pd.DataFrame:
+def read_parquet_in_batches(file_path: str, output_file_path: str, batch_size=65536, load_percentage=100) -> pl.DataFrame:
     """
     Reads a Parquet file in batches and processes each batch.
 
     Parameters:
     - file_path (str): The path to the Parquet file.
+    - output_file_path (str): The path to the output Parquet file.
     - batch_size (int): The number of rows to include in each batch.
     - load_percentage (int): The percentage of data to load from the source. Default is 100%.
 
     Returns:
-    - pd.DataFrame: A concatenated Pandas DataFrame of all batches.
+    - pl.DataFrame: A concatenated Polars DataFrame of all batches.
     """
-
-    parquet_file = pq.ParquetFile(file_path)
-
-    total_rows = parquet_file.metadata.num_rows
+    parquet_file = pl.scan_parquet(file_path)
+    total_rows = parquet_file.collect().height
     rows_to_load = int(total_rows * (load_percentage / 100))
     processed_rows = 0
     batches = []
 
-    for batch in parquet_file.iter_batches(batch_size=batch_size):
-        batch_df = batch.to_pandas()
+    with pl.scan_parquet(file_path).collect().iter_slices(batch_size) as reader:
+        for batch in reader:
+            batch_df = pl.DataFrame(batch)
+            processed_rows += batch_df.height
+            progress = (processed_rows / rows_to_load) * 100
+            print(f'Progress: {progress:.2f}%')
+            
+            # Write the batch to the output file
+            if processed_rows <= batch_size:
+                batch_df.write_parquet(output_file_path)
+            else:
+                batch_df.write_parquet(output_file_path)
 
-        processed_rows += len(batch_df)
-        progress = (processed_rows / rows_to_load) * 100
-        print(f'Progress: {progress:.2f}%')
-        
-        batches.append(batch_df)
+            batches.append(batch_df)
 
-        if processed_rows >= rows_to_load:
-            break
+            if processed_rows >= rows_to_load:
+                break
 
-    return pd.concat(batches, ignore_index=True)
+    return pl.concat(batches)
 
 
 def config():
