@@ -11,22 +11,20 @@ class SiameseDataset(Dataset):
     def __init__(self, file_path):
         self.parquet_file = pq.ParquetFile(file_path)
         self.num_rows = self.parquet_file.metadata.num_rows
-
+        self.data = pq.read_table(file_path).to_pandas()
+        
     def __len__(self):
         return self.num_rows
 
     def __getitem__(self, idx):
-        # Read a single row from the Parquet file
-        table = self.parquet_file.read_row_group(
-            self.parquet_file.row_group_indices[
-                idx // self.parquet_file.metadata.row_group_size
-            ]
-        )
-        row = table.slice(
-            idx % self.parquet_file.metadata.row_group_size, 1
-        ).to_pandas()
+        # Ensure idx is within bounds
+        if idx < 0 or idx >= len(self.data):
+            raise IndexError(f"Index {idx} out of bounds for dataset of length {len(self.data)}")
+        
+        # Access the row directly from the DataFrame
+        row = self.data.iloc[idx]
 
-        # Convert the row to a tensor
+        # Convert the row to tensors
         embedding1 = torch.tensor(row["embedding1"], dtype=torch.float32)
         embedding2 = torch.tensor(row["embedding2"], dtype=torch.float32)
         target = torch.tensor(row["target"], dtype=torch.float32)
