@@ -27,9 +27,50 @@ class SiameseNN(nn.Module):
         return output1, output2
 
 
+def eval(model: nn.Module, test_loader: DataLoader, criterion, device: torch.device):
+    """
+    Evaluate a Siamese PyTorch model.
+
+    Args:
+    model (nn.Module): The PyTorch model to evaluate
+    test_loader (DataLoader): DataLoader for test data
+    device (torch.device): Device to evaluate on (CPU or GPU)
+
+    Returns:
+    accuracy (float): Accuracy of the model on the test data
+    """
+    model.eval()
+    test_loss = 0
+    correct = 0
+    total = 0
+
+    with torch.no_grad():
+        for embedding1, embedding2, target in test_loader:
+            embedding1, embedding2, target = (
+                embedding1.to(device),
+                embedding2.to(device),
+                target.to(device),
+            )
+            output1, output2 = model(embedding1, embedding2)
+
+            loss = criterion(output1, output2, target)
+            test_loss += loss.item() * embedding1.size(0)
+
+            # Calculate accuracy
+            distance = torch.norm(output1 - output2, dim=1, p=2)
+            predictions = (distance < 0.5).float()
+
+            correct += (predictions == target).sum().item()
+            total += target.size(0)
+
+    accuracy = correct / total
+    test_loss /= len(test_loader.dataset)
+    return test_loss, accuracy
+
 def train(
     model: nn.Module,
     train_loader: DataLoader,
+    test_loader: DataLoader,
     criterion: nn.Module,
     optimizer: optim.Optimizer,
     num_epochs: int,
@@ -79,5 +120,8 @@ def train(
 
         print(f"Epoch {epoch+1}/{num_epochs}:")
         print(f"Train Loss: {train_loss:.4f}")
+
+        test_loss, accuracy = eval(model, test_loader, criterion, device)
+        print(f"Test Loss: {test_loss:.4f}, Accuracy: {accuracy:.4f}")
 
     return model
