@@ -59,7 +59,7 @@ def generate_merge_table() -> pd.DataFrame:
     merged_df = df_attributes.merge(df_resnet, on='variantid', how='outer')
     merged_df = merged_df.merge(df_text_and_bert, on='variantid', how='outer')
 
-    output_path = '../' + params['merged_df_path']
+    output_path = './' + params['merged_df_path']
     merged_df.to_parquet(output_path, index=False)
 
     return merged_df
