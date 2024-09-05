@@ -118,7 +118,7 @@ class old_bert_64_transformer(BaseEstimator, TransformerMixin):
 
 
 class bert_64_transformer(BaseEstimator, TransformerMixin):
-    def __init__(self, model, tokenizer, feature: str, batch_size: int = 32):
+    def __init__(self, model, tokenizer, feature: str, batch_size: int = 512):
         super().__init__()
         self.tokenizer = tokenizer
         self.model = model

@@ -21,3 +21,4 @@ def embedding_pipeline(model, tokenizer):
             ),
         ]
     )
+
