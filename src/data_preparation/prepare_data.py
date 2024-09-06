@@ -24,7 +24,11 @@ def prepare_data(
         print("WARNING! DATA CACHING IS DISABLED")
     else:
         print("Cache path defined, loading data from cache..")
-        return pd.read_parquet(cache_path, engine="pyarrow")
+        try:
+            return pd.read_parquet(cache_path, engine="pyarrow")
+        except FileNotFoundError:
+            print("Cache does not exist. Will write data to cache_path")
+            
 
     # Read parquets
     print("Reading parquets...")
