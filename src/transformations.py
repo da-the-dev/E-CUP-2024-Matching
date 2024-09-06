@@ -2,6 +2,7 @@ __all__ = ["categories_transformer", "attr_transformer"]
 
 import json
 import re
+from tqdm import tqdm
 from typing_extensions import deprecated
 from sklearn.decomposition import PCA
 import torch
@@ -175,10 +176,16 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
         all_texts = X[self.feature].tolist()
         all_embeddings = []
 
-        for i in range(0, len(all_texts), self.batch_size):
-            batch_texts = all_texts[i : i + self.batch_size]
-            batch_embeddings = self.__encode_batch(batch_texts)
-            all_embeddings.append(batch_embeddings.cpu().numpy())
+        with tqdm(total=len(all_texts), desc="Embedding", unit="rows") as pbar:
+            for i in range(0, len(all_texts), self.batch_size):
+                batch_texts = all_texts[i : i + self.batch_size]
+                batch_embeddings = self.__encode_batch(batch_texts)
+                numpied = batch_embeddings.cpu().numpy()
+                all_embeddings.append(numpied)
+                
+                pbar.update(len(numpied))
+                
+                
 
         all_embeddings = np.concatenate(all_embeddings, axis=0)
         reduced_embeddings = self.pca.fit_transform(all_embeddings)
