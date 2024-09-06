@@ -18,7 +18,14 @@ def prepare_data(
     embedder,
     catboost=False,
     train=False,
+    cache_path=None,
 ):
+    if cache_path is None:
+        print("WARNING! DATA CACHING IS DISABLED")
+    else:
+        print("Cache path defined, loading data from cache..")
+        return pd.read_parquet(cache_path, engine="pyarrow")
+
     # Read parquets
     print("Reading parquets...")
     resnet = pd.read_parquet(
@@ -198,6 +205,10 @@ def prepare_data(
         full_data = pd.concat(
             [full_data.drop("concated_embeddings_1", axis=1), expanded_columns], axis=1
         )
+
+    if cache_path:
+        print(f"Writing resulting data to {cache_path}...")
+        full_data.to_parquet(cache_path, engine="pyarrow")
 
     print("\nDone!")
 
