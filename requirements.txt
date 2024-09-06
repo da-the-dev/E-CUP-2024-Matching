@@ -10,3 +10,4 @@ PyYAML==6.0.2
 typing-extensions==4.12.2
 matplotlib==3.9.2
 transformers==4.44.2
+catboost==1.2.5
