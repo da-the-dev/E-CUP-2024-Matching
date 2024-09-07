@@ -119,7 +119,7 @@ class old_bert_64_transformer(BaseEstimator, TransformerMixin):
 
 
 class bert_64_transformer(BaseEstimator, TransformerMixin):
-    def __init__(self, model, tokenizer, feature: str, batch_size: int = 512):
+    def __init__(self, model, tokenizer, feature: str, batch_size: int = 256):
         super().__init__()
         self.tokenizer = tokenizer
         self.model = model
@@ -182,13 +182,16 @@ class bert_64_transformer(BaseEstimator, TransformerMixin):
                 batch_embeddings = self.__encode_batch(batch_texts)
                 numpied = batch_embeddings.cpu().numpy()
                 all_embeddings.append(numpied)
+                print("batch done " + str(i))
                 
                 pbar.update(len(numpied))
                 
                 
-
+        print("embedding done")
         all_embeddings = np.concatenate(all_embeddings, axis=0)
+        print("concat done")
         reduced_embeddings = self.pca.fit_transform(all_embeddings)
 
         X_copy[self.feature] = list(reduced_embeddings)
+        print("pca done")
         return X_copy
