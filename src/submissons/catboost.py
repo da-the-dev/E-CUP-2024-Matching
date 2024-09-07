@@ -5,12 +5,12 @@ from src.data_preparation.prepare_data import prepare_data
 
 def catboost_submission():
     # Prep file paths
-    resnet_path = "data/test/resnet_test.parquet"
-    text_and_bert_path = "data/test/text_and_bert_test.parquet"
-    attributes_path = "data/test/attributes_test.parquet"
-    test_path = "data/test/test.parquet"
-    model_path = "models/model_catboost.pkl"
-    test_data_catboost_path = "data/test/test_data_catboost.parquet"
+    resnet_path = "./data/test/resnet_test.parquet"
+    text_and_bert_path = "./data/test/text_and_bert_test.parquet"
+    attributes_path = "./data/test/attributes_test.parquet"
+    test_path = "./data/test/test.parquet"
+    model_path = "./models/model_catboost.pkl"
+    test_data_catboost_path = "./data/test/test_data_catboost.parquet"
 
     # Load embedder and tokenizer
     tokenizer = pickle.loads(open("tokenizer.pkl", "rb").read())
