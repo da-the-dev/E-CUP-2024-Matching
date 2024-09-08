@@ -42,7 +42,7 @@ def catboost_submission():
     test_data["target"] = y_pred
 
     print("Saving submisson.csv...")
-    test_data.to_csv("data/submisson.csv", index=False)
+    test_data.to_csv("submisson.csv", index=False)
 
 if  __name__ == "__main__":
     catboost_submission()
