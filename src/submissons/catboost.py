@@ -10,7 +10,7 @@ def catboost_submission():
     attributes_path = "./data/test/attributes_test.parquet"
     test_path = "./data/test/test.parquet"
     model_path = "./models/model_catboost.pkl"
-    test_data_catboost_path = "./data/test/test_data_catboost.parquet"
+    # test_data_catboost_path = "./data/test/test_data_catboost.parquet"
 
     # Load embedder and tokenizer
     tokenizer = pickle.loads(open("tokenizer.pkl", "rb").read())
@@ -26,7 +26,7 @@ def catboost_submission():
         embedder,
         catboost=True,
         train=False,
-        cache_path=test_data_catboost_path,
+        # cache_path=test_data_catboost_path,
     )
 
     # Load the model
